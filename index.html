@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Attendance System</title>
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="light">
+  
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">
+          <i data-lucide="scan-face" style="width: 20px; height: 20px;"></i>
+        </div>
+        <span class="logo-text">AURA Attend</span>
+      </div>
+      
+      <nav style="flex-grow: 1;">
+        <ul class="sidebar-menu">
+          <li class="menu-item active" data-view="dashboard">
+            <a href="#dashboard">
+              <i data-lucide="layout-dashboard" style="width: 18px; height: 18px;"></i>
+              Dashboard
+            </a>
+          </li>
+          <li class="menu-item" data-view="terminal">
+            <a href="#terminal">
+              <i data-lucide="camera" style="width: 18px; height: 18px;"></i>
+              Scan Terminal
+            </a>
+          </li>
+          <li class="menu-item" data-view="register">
+            <a href="#register">
+              <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i>
+              Register Face
+            </a>
+          </li>
+          <li class="menu-item" data-view="student">
+            <a href="#student">
+              <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+              Student Portal
+            </a>
+          </li>
+          <li class="menu-item" data-view="reports">
+            <a href="#reports">
+              <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px;"></i>
+              Reports & Logs
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <span style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted);">v1.0.0 Stable</span>
+        <button class="theme-toggle" id="themeToggleButton" title="Toggle Dark/Light Mode">
+          <i data-lucide="moon" style="width: 18px; height: 18px;" id="themeToggleIcon"></i>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Content Panel -->
+    <main class="main-content">
+      
+      <!-- PAGE HEADER -->
+      <header class="page-header">
+        <div>
+          <h1 class="page-title" id="pageTitle">Overview Dashboard</h1>
+          <p class="page-subtitle" id="pageSubtitle">Real-time attendance logs & analytics metrics</p>
+        </div>
+        <div class="flex-row-center">
+          <span id="currentTimeIndicator" class="font-mono" style="font-weight: 600; color: var(--text-muted); background: var(--bg-card); padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color);">
+            08:00:00 AM
+          </span>
+        </div>
+      </header>
+      
+      <!-- ============================================== -->
+      <!-- VIEW: OVERVIEW DASHBOARD -->
+      <!-- ============================================== -->
+      <section id="viewDashboard" class="view-section active">
+        <!-- KPI METRICS GRID -->
+        <div class="grid-kpi">
+          
+          <div class="card kpi-card">
+            <div class="card-header">
+              <span class="kpi-label">Attendance Rate</span>
+              <span id="kpiAttendanceRateTrend" class="trend-pill positive">↑ 92%</span>
+            </div>
+            <div class="kpi-value" id="kpiAttendanceRate">0%</div>
+            <div class="kpi-footer">
+              <i data-lucide="info" style="width: 12px; height: 12px; color: var(--text-muted);"></i>
+              <span style="color: var(--text-muted);">Percentage of enrolled present today</span>
+            </div>
+          </div>
+          
+          <div class="card kpi-card">
+            <div class="card-header">
+              <span class="kpi-label">Total Students</span>
+              <i data-lucide="users" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+            </div>
+            <div class="kpi-value" id="kpiTotalStudents">0</div>
+            <div class="kpi-footer">
+              <span style="color: var(--text-muted);">Active registrations</span>
+            </div>
+          </div>
+          
+          <div class="card kpi-card">
+            <div class="card-header">
+              <span class="kpi-label">Present Today</span>
+              <i data-lucide="check-circle" style="width: 16px; height: 16px; color: var(--success);"></i>
+            </div>
+            <div class="kpi-value" id="kpiPresentCount">0</div>
+            <div class="kpi-footer">
+              <span style="color: var(--text-muted);">Checked in on time</span>
+            </div>
+          </div>
+          
+          <div class="card kpi-card">
+            <div class="card-header">
+              <span class="kpi-label">Late Arrivals</span>
+              <i data-lucide="clock" style="width: 16px; height: 16px; color: var(--warning);"></i>
+            </div>
+            <div class="kpi-value" id="kpiLateCount">0</div>
+            <div class="kpi-footer">
+              <span style="color: var(--text-muted);">Arrived after 09:00 AM</span>
+            </div>
+          </div>
+          
+          <div class="card kpi-card">
+            <div class="card-header">
+              <span class="kpi-label">Absent Today</span>
+              <i data-lucide="alert-triangle" style="width: 16px; height: 16px; color: var(--danger);"></i>
+            </div>
+            <div class="kpi-value" id="kpiAbsentCount">0</div>
+            <div class="kpi-footer">
+              <span style="color: var(--text-muted);">No logs recorded today</span>
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- DASHBOARD SECOND ROW (CHARTS & RECENT FEED) -->
+        <div class="grid-2col">
+          
+          <div class="flex-column gap-lg">
+            <!-- Line Chart Card -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Weekly Attendance Trends</h3>
+                  <span class="card-subtitle">Attendance rate comparison for last 5 class days</span>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="weeklyTrendChartCanvas"></canvas>
+              </div>
+            </div>
+            
+            <!-- Class Wise Card -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Department / Class Attendance</h3>
+                  <span class="card-subtitle">Success rates per degree track</span>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="classDistributionChartCanvas"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Recent activity feed -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Live Log Stream</h3>
+                <span class="card-subtitle">Real-time terminal scans today</span>
+              </div>
+              <span class="badge badge-present pulse">Live</span>
+            </div>
+            <div class="log-stream-card">
+              <div class="log-stream-list" id="recentLogsStreamList">
+                <!-- Seeded programmatically -->
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      
+      <!-- ============================================== -->
+      <!-- VIEW: SCAN TERMINAL (FACE SCANNING APPARATUS) -->
+      <!-- ============================================== -->
+      <section id="viewTerminal" class="view-section">
+        <div class="scanner-grid">
+          
+          <!-- Camera Feed Panel -->
+          <div class="flex-column gap-md">
+            <div class="camera-panel">
+              <video id="terminalVideo" class="camera-feed" muted></video>
+              <canvas id="terminalHUDCanvas" class="scanner-overlay"></canvas>
+              
+              <!-- Scan line animation overlay -->
+              <div class="hud-scan-line" id="hudScanLine" style="display: none;"></div>
+              
+              <!-- Shutter Shutter Flash -->
+              <div class="shutter-flash" id="cameraShutterFlash"></div>
+              
+              <!-- Camera Off state panel -->
+              <div id="cameraOffOverlay" style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; color: var(--text-muted); text-align: center; width: 100%; height: 100%; background: #000; z-index: 5;">
+                <i data-lucide="video-off" style="width: 48px; height: 48px;"></i>
+                <p>Scanner Terminal Inactive.<br>Press <strong>Start Scanner Device</strong> to connect webcam.</p>
+              </div>
+            </div>
+            
+            <div class="flex-row-center">
+              <button class="btn btn-primary" id="btnStartTerminal" style="flex-grow: 1;">
+                <i data-lucide="video" style="width: 16px; height: 16px;"></i>
+                Start Scanner Device
+              </button>
+              <button class="btn btn-secondary" id="btnStopTerminal" style="display: none; flex-grow: 1;">
+                <i data-lucide="video-off" style="width: 16px; height: 16px;"></i>
+                Disconnect Scanner
+              </button>
+            </div>
+          </div>
+          
+          <!-- Control Panel -->
+          <div class="card" style="justify-content: flex-start;">
+            <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+              <div>
+                <h3 class="card-title">Terminal Administration</h3>
+                <span class="card-subtitle">Control face matching & test scanner loops</span>
+              </div>
+            </div>
+            
+            <!-- Scan Actions -->
+            <div class="flex-column gap-md">
+              <div class="form-group">
+                <label for="simulationTestTarget">Face Matching Simulation Profile</label>
+                <select id="simulationTestTarget">
+                  <option value="random">Auto-detect Random Enrolled Student</option>
+                  <option value="unknown">Simulate Unregistered Face (Access Denied)</option>
+                  <!-- Seeded dynamically with enrolled students -->
+                </select>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Controls who is matched when face scanning completes.</span>
+              </div>
+              
+              <button class="btn btn-primary" id="btnTriggerScan" disabled style="padding: 14px;">
+                <i data-lucide="scan" style="width: 18px; height: 18px;"></i>
+                Initialize Face scan
+              </button>
+            </div>
+            
+            <!-- Result log display card -->
+            <div id="scannerResultPanel" class="card" style="display: none; background: var(--bg-page); border: 1px dashed var(--border-color); gap: 12px; margin-top: 16px;">
+              <div class="flex-row-center">
+                <div id="scannerResultPhoto" style="width: 64px; height: 64px; border-radius: 8px; overflow: hidden; background: var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--text-muted);">
+                  A
+                </div>
+                <div class="flex-column gap-xs">
+                  <span style="font-weight: 700; font-size: 1rem;" id="scannerResultName">Sophia Martinez</span>
+                  <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);" id="scannerResultRollNo">CS-2026-002</span>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 12px;">
+                <span id="scannerResultStatus" class="badge badge-present">Present</span>
+                <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);" id="scannerResultTime">08:45:12</span>
+              </div>
+            </div>
+            
+          </div>
+          
+        </div>
+      </section>
+      
+      <!-- ============================================== -->
+      <!-- VIEW: REGISTER FACE (NEW REGISTRATION) -->
+      <!-- ============================================== -->
+      <section id="viewRegister" class="view-section">
+        <div class="scanner-grid">
+          
+          <!-- Form Details -->
+          <form id="studentRegistrationForm" class="card" onsubmit="event.preventDefault();" style="justify-content: flex-start;">
+            <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+              <div>
+                <h3 class="card-title">Enrolment Application</h3>
+                <span class="card-subtitle">Fill in details and map facial descriptors</span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="regName">Full Name</label>
+              <input type="text" id="regName" class="input-field" placeholder="e.g. Johnathan Doe" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="regRollNo">Roll Number (Unique ID)</label>
+              <input type="text" id="regRollNo" class="input-field" placeholder="e.g. CS-2026-005" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="regClass">Department / Class Track</label>
+              <select id="regClass" required>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Cyber Security">Cyber Security</option>
+              </select>
+            </div>
+            
+            <input type="hidden" id="regFaceData">
+            
+            <button type="submit" class="btn btn-primary" id="btnSubmitRegistration" disabled style="padding: 14px; margin-top: 16px;">
+              <i data-lucide="user-check" style="width: 18px; height: 18px;"></i>
+              Complete Student Enrolment
+            </button>
+          </form>
+          
+          <!-- Camera Enrollment Mapping -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Biometric Face Mapping</h3>
+                <span class="card-subtitle">Provide camera scan to bind biometric data</span>
+              </div>
+            </div>
+            
+            <div class="flex-column gap-md align-items-center">
+              <div class="camera-panel" style="aspect-ratio: 4/3; width: 100%; max-width: 320px; border-radius: 8px;">
+                <video id="registerVideo" class="camera-feed" muted></video>
+                <canvas id="registerHUDCanvas" class="scanner-overlay"></canvas>
+                <!-- Shutter Shutter Flash -->
+                <div class="shutter-flash" id="registerShutterFlash"></div>
+                <!-- Off Overlay -->
+                <div id="registerCameraOffOverlay" style="position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-muted); font-size:0.8rem; text-align: center; width: 100%; height: 100%; background: #000; z-index: 5;">
+                  <i data-lucide="video-off" style="width: 24px; height: 24px;"></i>
+                  <span>Biometric Webcam Off</span>
+                </div>
+              </div>
+              
+              <div id="capturedFacePreview" class="flex-row-center" style="display: none; justify-content: center; margin-top: 8px;">
+                <div style="border: 2px solid var(--success); border-radius: 8px; overflow: hidden; width: 96px; height: 96px;">
+                  <img id="capturedFaceImg" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="flex-column gap-xs">
+                  <span style="font-weight: 700; font-size: 0.85rem; color: var(--success);">✓ FACE CAPTURED</span>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Biometric mapping complete.</span>
+                </div>
+              </div>
+              
+              <div class="flex-row-center" style="width: 100%;">
+                <button class="btn btn-secondary" id="btnStartRegisterCamera" style="flex-grow:1;">
+                  <i data-lucide="video" style="width: 16px; height: 16px;"></i>
+                  Activate Webcam
+                </button>
+                <button class="btn btn-primary" id="btnCapturePhoto" disabled style="display: none; flex-grow:1;">
+                  <i data-lucide="aperture" style="width: 16px; height: 16px;"></i>
+                  Capture Profile Photo
+                </button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      
+      <!-- ============================================== -->
+      <!-- VIEW: STUDENT PORTAL (LOOKUP & ATTENDANCE MAP) -->
+      <!-- ============================================== -->
+      <section id="viewStudent" class="view-section">
+        
+        <!-- Login Card -->
+        <div class="card" id="studentPortalLoginCard" style="max-width: 480px; margin: 0 auto; padding: 40px; align-self: center; justify-content: center;">
+          <div class="text-center flex-column gap-sm">
+            <div class="logo-icon" style="align-self: center; width: 48px; height: 48px;">
+              <i data-lucide="user" style="width: 24px; height: 24px;"></i>
+            </div>
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-top: 12px;">Student Portal Sign In</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Check your personal attendance card & log records</p>
+          </div>
+          
+          <div class="form-group mt-md">
+            <label for="studentLoginRollNo">Student Roll Number</label>
+            <input type="text" id="studentLoginRollNo" class="input-field" placeholder="e.g. CS-2026-001">
+          </div>
+          
+          <div id="studentLoginError" class="badge badge-absent" style="display: none; justify-content: center; text-transform: none; border-radius: 8px; padding: 10px;">
+            Roll number not found.
+          </div>
+          
+          <div class="flex-column gap-sm mt-md">
+            <button class="btn btn-primary" id="btnStudentLoginSubmit">
+              <i data-lucide="log-in" style="width: 16px; height: 16px;"></i>
+              Sign In with ID
+            </button>
+            <button class="btn btn-secondary" id="btnStudentLoginFace">
+              <i data-lucide="scan" style="width: 16px; height: 16px;"></i>
+              Scan Face for Login
+            </button>
+          </div>
+          
+          <!-- Webcam login box -->
+          <div id="studentFaceLoginCamContainer" class="camera-panel" style="display: none; aspect-ratio: 4/3; margin-top: 16px; border-radius: 8px;">
+            <video id="studentFaceLoginVideo" class="camera-feed" muted></video>
+            <canvas id="studentFaceLoginCanvas" class="scanner-overlay"></canvas>
+          </div>
+        </div>
+        
+        <!-- Student Details Dashboard View (Hidden until Login) -->
+        <div class="flex-column gap-lg" id="studentPortalDetails" style="display: none;">
+          
+          <!-- Top Row details -->
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+              <div class="flex-row-center">
+                <div class="profile-img-placeholder" id="studentProfileImage">
+                  A
+                </div>
+                <div class="flex-column gap-xs">
+                  <h2 style="font-size: 1.5rem; font-weight: 700;" id="studentNameHeader">Alexander Wright</h2>
+                  <span style="color: var(--text-muted); font-size: 0.9rem;" id="studentClassHeader">Computer Science</span>
+                  <span class="font-mono" style="font-size: 0.8rem; background: var(--bg-page); border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; align-self: flex-start;" id="studentRollNoHeader">CS-2026-001</span>
+                </div>
+              </div>
+              
+              <button class="btn btn-secondary" id="btnStudentLogout">
+                <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+                Log Out
+              </button>
+            </div>
+          </div>
+          
+          <!-- Middle stats rows -->
+          <div class="grid-2col">
+            
+            <div class="flex-column gap-lg">
+              
+              <!-- Mini Stats Card -->
+              <div class="grid-kpi" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+                
+                <div class="card kpi-card" style="padding: 16px;">
+                  <span class="kpi-label" style="font-size: 0.75rem;">Attendance</span>
+                  <div class="kpi-value" id="studentKpiRate" style="font-size: 1.75rem;">0%</div>
+                  <span id="studentKpiStanding" class="trend-pill positive" style="font-size: 0.7rem; align-self: flex-start; margin-top: 4px;">Good Standing</span>
+                </div>
+                
+                <div class="card kpi-card" style="padding: 16px;">
+                  <span class="kpi-label" style="font-size: 0.75rem;">Present Days</span>
+                  <div class="kpi-value" id="studentKpiPresent" style="font-size: 1.75rem; color: var(--success);">0</div>
+                </div>
+                
+                <div class="card kpi-card" style="padding: 16px;">
+                  <span class="kpi-label" style="font-size: 0.75rem;">Late Days</span>
+                  <div class="kpi-value" id="studentKpiLate" style="font-size: 1.75rem; color: var(--warning);">0</div>
+                </div>
+                
+                <div class="card kpi-card" style="padding: 16px;">
+                  <span class="kpi-label" style="font-size: 0.75rem;">Absences</span>
+                  <div class="kpi-value" id="studentKpiAbsent" style="font-size: 1.75rem; color: var(--danger);">0</div>
+                </div>
+                
+              </div>
+              
+              <!-- Table List -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">All Attendance Check-Ins</h3>
+                </div>
+                <div class="table-wrapper">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Check-in Method</th>
+                      </tr>
+                    </thead>
+                    <tbody id="studentHistoryTableBody">
+                      <!-- Seeded programmatically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Calendar Visualizer Grid -->
+            <div class="card" style="align-self: flex-start;">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Attendance Heatmap</h3>
+                  <span class="card-subtitle">Last 15 class days visual map (Mon-Fri)</span>
+                </div>
+              </div>
+              
+              <div class="calendar-heatmap-grid" id="studentCalendarGrid">
+                <!-- Days boxes populated programmatically -->
+              </div>
+              
+              <div class="flex-column gap-xs mt-md" style="font-size: 0.8rem; border-top: 1px solid var(--border-color); padding-top: 12px;">
+                <div style="font-weight:600; color:var(--text-muted); margin-bottom: 4px;">LEGEND:</div>
+                <div class="flex-row-center"><span class="badge badge-present" style="width:14px; height:14px; padding:0; border-radius:3px;"></span> On Time</div>
+                <div class="flex-row-center"><span class="badge badge-late" style="width:14px; height:14px; padding:0; border-radius:3px;"></span> Late Arrival</div>
+                <div class="flex-row-center"><span class="badge badge-absent" style="width:14px; height:14px; padding:0; border-radius:3px;"></span> Absent</div>
+                <div class="flex-row-center" style="color:var(--text-muted);"><span style="width:14px; height:14px; border: 1px dashed var(--border-color); border-radius:3px; display:inline-block;"></span> Weekend / No School</div>
+              </div>
+            </div>
+            
+          </div>
+          
+        </div>
+      </section>
+      
+      <!-- ============================================== -->
+      <!-- VIEW: REPORTS & AUDIT TABLE -->
+      <!-- ============================================== -->
+      <section id="viewReports" class="view-section">
+        
+        <!-- Filters Toolbar Card -->
+        <div class="card">
+          <div class="filters-row">
+            
+            <div class="filter-group filter-group-search">
+              <label for="filterSearch">Search student</label>
+              <input type="text" id="filterSearch" class="input-field" placeholder="Search by name or roll number...">
+            </div>
+            
+            <div class="filter-group">
+              <label for="filterClass">Class</label>
+              <select id="filterClass">
+                <option value="All">All Classes</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Cyber Security">Cyber Security</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label for="filterStatus">Status</label>
+              <select id="filterStatus">
+                <option value="All">All Statuses</option>
+                <option value="Present">Present</option>
+                <option value="Late">Late</option>
+                <option value="Absent">Absent</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label for="filterDate">Date</label>
+              <input type="date" id="filterDate" class="input-field">
+            </div>
+            
+            <button class="btn btn-secondary" id="btnExportCSV">
+              <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+              Export CSV
+            </button>
+            
+          </div>
+        </div>
+        
+        <!-- Main Table Card -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Auditing Logs</h3>
+              <span class="card-subtitle" id="reportsTotalCount">0 records found</span>
+            </div>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Tip: Click any row to manually edit attendance status.</span>
+          </div>
+          
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Roll Number</th>
+                  <th>Student Name</th>
+                  <th>Class Track</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Details & Notes</th>
+                </tr>
+              </thead>
+              <tbody id="reportsTableBody">
+                <!-- Seeded dynamically -->
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div class="pagination-row">
+            <span style="font-size: 0.85rem; color: var(--text-muted);" id="reportCurrentPageIndicator">Page 1 of 1</span>
+            <div class="pagination-buttons">
+              <button class="pagination-btn" id="reportFirstPage" title="First Page"><i data-lucide="chevrons-left" style="width: 16px; height: 16px;"></i></button>
+              <button class="pagination-btn" id="reportPrevPage" title="Previous Page"><i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i></button>
+              <button class="pagination-btn" id="reportNextPage" title="Next Page"><i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i></button>
+              <button class="pagination-btn" id="reportLastPage" title="Last Page"><i data-lucide="chevrons-right" style="width: 16px; height: 16px;"></i></button>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+      
+    </main>
+  </div>
+  
+  <!-- ============================================== -->
+  <!-- MODAL: MANUAL EDIT ATTENDANCE -->
+  <!-- ============================================== -->
+  <div class="modal-backdrop" id="editAttendanceModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="AppReports.closeEditModal()" title="Close dialog">
+        <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+      </button>
+      
+      <div class="flex-column gap-xs">
+        <h3 style="font-size: 1.25rem; font-weight: 700;">Manual Record Adjustment</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Modify status for this check-in entry</p>
+      </div>
+      
+      <div style="border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 16px 0;" class="flex-column gap-sm">
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Student</span>
+          <div style="font-weight: 700; font-size: 0.95rem; margin-top: 2px;" id="editModalStudentName">Alexander Wright</div>
+          <div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);" id="editModalRollNo">CS-2026-001</div>
+        </div>
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Logged Date & Time</span>
+          <div class="font-mono" style="font-size: 0.9rem; margin-top: 2px;" id="editModalDate">2026-06-25 08:45:00</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="editModalStatus">Attendance Status</label>
+        <select id="editModalStatus">
+          <option value="Present">Present (On Time)</option>
+          <option value="Late">Late Arrival</option>
+          <option value="Absent">Absent</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="editModalNotes">Adjustment Reason / Notes</label>
+        <input type="text" id="editModalNotes" class="input-field" placeholder="e.g. Doctor's note, Late bus, System error">
+      </div>
+      
+      <div class="flex-row-center" style="justify-content: flex-end; gap: 12px; margin-top: 8px;">
+        <button class="btn btn-secondary" onclick="AppReports.closeEditModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="AppReports.saveManualEdit()">Commit Changes</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ============================================== -->
+  <!-- MODAL: REGISTRATION SUCCESS NOTIFICATION -->
+  <!-- ============================================== -->
+  <div class="modal-backdrop" id="registrationSuccessModal">
+    <div class="modal-content text-center" style="gap: 16px; max-width: 400px; padding: 40px;">
+      <div class="logo-icon" style="background: var(--success); width: 56px; height: 56px; align-self: center; border-radius: 50%;">
+        <i data-lucide="user-check" style="width: 28px; height: 28px;"></i>
+      </div>
+      <h3 style="font-size: 1.35rem; font-weight: 700; margin-top: 8px;">Biometric Profile Linked</h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        The student is registered in the database, and their facial recognition map has been compiled. They can now scan to log attendance.
+      </p>
+      <button class="btn btn-primary" onclick="document.getElementById('registrationSuccessModal').classList.remove('active')" style="margin-top: 8px;">
+        Got it, thanks!
+      </button>
+    </div>
+  </div>
+  
+  <!-- App JS Files -->
+  <script src="js/db.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/reports.js"></script>
+  <script src="js/student.js"></script>
+  <script src="js/app.js"></script>
+  
+</body>
+</html>
